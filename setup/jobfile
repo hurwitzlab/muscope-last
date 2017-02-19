@@ -1,0 +1,3 @@
+lastdb -cR01    HOT_contigs /work/03137/kyclark/ohana/HOT/HOT238_2_1000m/contigs.fa
+lastdb -cR01    HOT_genes /work/03137/kyclark/ohana/HOT/HOT238_2_1000m/genes.fa
+lastdb -cR01 -p HOT_proteins /work/03137/kyclark/ohana/HOT/HOT238_2_1000m/proteins.fa
