@@ -22,11 +22,15 @@
 #SBATCH -t 00:30:00
 #          <------ Account String ----->
 # <--- (Use this ONLY if you have MULTIPLE accounts) --->
-##SBATCH -A TG-ASC160037
+#SBATCH -A TG-ASC160037
 #------------------------------------------------------
 
-export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
+module load launcher
+module load gcc/4.9.3
+
+export LAUNCHER_PLUGIN_DIR=$TACC_LAUNCHER_DIR/plugins
 export LAUNCHER_RMI=SLURM
-export LAUNCHER_JOB_FILE=jobfile
+export LAUNCHER_JOB_FILE=$WORK/cyverse-apps/muscope-last/setup/jobfile
  
-$LAUNCHER_DIR/paramrun
+$TACC_LAUNCHER_DIR/paramrun
+
