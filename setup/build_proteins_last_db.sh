@@ -2,7 +2,7 @@
 #SBATCH -J build-proteins-last-dbs
 #SBATCH -N 1 
 #SBATCH -n 1
-#SBATCH -p normal
+#SBATCH -p largemem
 #SBATCH -e build-proteins-last-dbs.e%j
 #SBATCH -o build-proteins-last-dbs.o%j
 #SBATCH -t 24:00:00
