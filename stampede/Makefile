@@ -1,5 +1,5 @@
-APP = muscope-blast
-VERSION = 0.0.4
+APP = muscope-last
+VERSION = 0.0.1
 EMAIL = jklynch@email.arizona.edu
 
 clean:
