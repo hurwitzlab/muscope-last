@@ -12,7 +12,7 @@ BIN=$( cd "$( dirname "$0" )" && pwd )
 QUERY=""
 PCT_ID=".98"
 OUT_DIR="$BIN"
-NUM_THREADS=12
+NUM_THREADS=4
 
 #module load blast
 # must build LAST on Stampede
@@ -116,14 +116,14 @@ fi
 # Here is a place for fasplit.py to ensure not too 
 # many sequences in each query.
 
-LAST_DIR="$JKL_WORK/ohana/last"
+LASTDB_DIR="$JKL_WORK/ohana/last"
 
-if [[ ! -d "$LAST_DIR" ]]; then
-  echo "LAST_DIR \"$LAST_DIR\" does not exist."
+if [[ ! -d "$LASTDB_DIR" ]]; then
+  echo "LASTDB_DIR \"$LASTDB_DIR\" does not exist."
   exit 1
 fi
 
-LAST_DIR="$JKL_WORK/ohana/last"
+##LASTDB_DIR="$JKL_WORK/ohana/last"
 LAST_ARGS="-v -f BlastTab+ -P $NUM_THREADS"
 LAST_PARAM="$$.last.param"
 
@@ -160,8 +160,8 @@ while read INPUT_FILE; do
   fi
 
   if [[ ${#LAST_TO_DNA} -gt 0 ]]; then
-    echo "$LAST_TO_DNA $LAST_ARGS $LAST_DIR/contigs $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-contigs.tab" >> $LAST_PARAM
-    echo "$LAST_TO_DNA $LAST_ARGS $LAST_DIR/genes   $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-genes.tab" >> $LAST_PARAM
+    echo "$LAST_TO_DNA $LAST_ARGS $LASTDB_DIR/contigs $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-contigs.tab" >> $LAST_PARAM
+    echo "$LAST_TO_DNA $LAST_ARGS $LASTDB_DIR/genes   $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-genes.tab" >> $LAST_PARAM
   fi
 
   LAST_TO_PROT=""
@@ -174,10 +174,13 @@ while read INPUT_FILE; do
   fi
 
   if [[ ${#LAST_TO_PROT} -gt 0 ]]; then
-    echo "$LAST_TO_PROT $LAST_ARGS $LAST_DIR/proteins $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-proteins.tab" >> $LAST_PARAM
+    echo "$LAST_TO_PROT $LAST_ARGS $LASTDB_DIR/proteins $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-proteins.tab" >> $LAST_PARAM
   fi
 done < "$INPUT_FILES"
 rm "$INPUT_FILES"
+
+# LAST was built with gcc
+module load gcc/4.9.3
 
 echo "Starting launcher for LAST"
 export LAUNCHER_DIR="$HOME/src/launcher"
