@@ -155,10 +155,10 @@ while read INPUT_FILE; do
   LAST_TO_DNA=""
   if [[ $TYPE == 'dna' ]]; then 
     LAST_TO_DNA='lastal'
-  elif [[ $TYPE == 'prot' ]]; then
-    LAST_TO_DNA='lastal'
+  #elif [[ $TYPE == 'prot' ]]; then
+  #  LAST_TO_DNA='lastal'
   else
-    echo "Cannot LAST $BASENAME to DNA (not DNA or prot)"
+    echo "Cannot LAST $BASENAME to DNA (not DNA)"
   fi
 
   if [[ ${#LAST_TO_DNA} -gt 0 ]]; then
@@ -168,7 +168,7 @@ while read INPUT_FILE; do
 
   LAST_TO_PROT=""
   if [[ $TYPE == 'dna' ]]; then 
-    LAST_TO_PROT='lastal'
+    LAST_TO_PROT='lastal -F15'
   elif [[ $TYPE == 'prot' ]]; then
     LAST_TO_PROT='lastal'
   else
