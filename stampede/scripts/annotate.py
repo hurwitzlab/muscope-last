@@ -57,7 +57,7 @@ def main():
     # The sample name here would be "HOT233_1_0770m"
     # But we may have no annotations for that sample, so skip
     with open(last_out, 'rt') as fh:
-        for i, line in enumerate(filterfalse(fh, lambda x: x.startswith('#'))):
+        for i, line in enumerate(filterfalse(lambda x: x.startswith('#'), fh)):
             rec   = dict(zip(last_fields, line.rstrip().split('\t')))
             subject_id = rec['subject id']
             match = re.match('^(HOT\d{3}_(?:\d*[a-z]?_)?\d*m)', subject_id)
