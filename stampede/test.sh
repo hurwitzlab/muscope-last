@@ -2,9 +2,9 @@
 
 #SBATCH -A iPlant-Collabs
 #SBATCH -N 1
-#SBATCH -n 4
-#SBATCH -t 00:30:00
-#SBATCH -p development
+#SBATCH -n 8
+#SBATCH -t 02:00:00
+#SBATCH -p normal
 #SBATCH -J mulast
 #SBATCH --mail-type BEGIN,END,FAIL
 #SBATCH --mail-user jklynch@email.arizona.edu
