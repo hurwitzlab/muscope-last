@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 # Author: Ken Youens-Clark <kyclark@email.arizona.edu>
+# Author: Joshua Lynch <jklynch@email.arizona.edu>
 
 import argparse
+from itertools import filterfalse
 import os
 import re
 import sqlite3
@@ -11,12 +13,12 @@ import sys
 def main():
     args      = get_args()
     out_dir   = args.out_dir
-    blast_out = args.blast_out
+    last_out  = args.last_out
     annot_dir = args.annot_dir
     verbose   = args.verbose
 
-    if not os.path.isfile(blast_out):
-        print('--blast_out file "{}" is not a file'.format(blast_out))
+    if not os.path.isfile(last_out):
+        print('--last_out file "{}" is not a file'.format(last_out))
         exit(1)
 
     if not os.path.isdir(annot_dir):
@@ -35,32 +37,33 @@ def main():
 
     os.makedirs(out_dir, exist_ok=True)
 
-    blast_fields = ['qseqid', 'sseqid', 'pident', 'length', 'mismatch',
-        'gapopen', 'qstart', 'qend', 'sstart', 'send', 'evalue', 'bitscore']
-    gene_fields = [ 'gene_id', 'gene_name', 'cog_id', 'source', 'evalue', 
-        'desc', 'cog_categories']
+    last_fields = ('query id', 'subject id', '% identity', 'alignment length', 'mismatches',
+        'gap opens', 'q.start', 'q.end', 's.start', 's.end', 'evalue', 'bit score',
+        'query length', 'subject length')
+    gene_fields = ('gene_id', 'gene_name', 'cog_id', 'source', 'evalue',
+        'desc', 'cog_categories')
     sql = 'select ' + ', '.join(gene_fields) + ' from gene where gene_name=?'
 
     # print headers for output
-    out_file = os.path.join(out_dir, os.path.basename(blast_out))
+    out_file = os.path.join(out_dir, os.path.basename(last_out))
     out_fh   = open(out_file, 'wt')
-    out_fh.write('\t'.join(['qseqid', 'sample'] + gene_fields) + '\n')
+    out_fh.write('\t'.join(('query id', 'sample') + gene_fields) + '\n')
 
     def err(msg):
         if verbose:
             sys.stderr.write(msg + '\n')
 
-    # BLAST output will contain gene ids like "HOT233_1_0770m_c4_1"
+    # LAST output will contain gene ids like "HOT233_1_0770m_c4_1"
     # The sample name here would be "HOT233_1_0770m"
     # But we may have no annotations for that sample, so skip
-    with open(blast_out, 'rt') as fh:
-        for i, line in enumerate(fh):
-            rec   = dict(zip(blast_fields, line.rstrip().split('\t')))
-            seqid = rec['sseqid']
-            match = re.match('^(HOT\d{3}_(?:\d*[a-z]?_)?\d*m)', seqid)
+    with open(last_out, 'rt') as fh:
+        for i, line in enumerate(filterfalse(fh, lambda x: x.startswith('#'))):
+            rec   = dict(zip(last_fields, line.rstrip().split('\t')))
+            subject_id = rec['subject id']
+            match = re.match('^(HOT\d{3}_(?:\d*[a-z]?_)?\d*m)', subject_id)
 
             if not match:
-                err('Failed to extract sample name from seqid "{}"'.format(seqid))
+                err('Failed to extract sample name from subject id "{}"'.format(subject_id))
                 continue
 
             sample = match.group(0)
@@ -69,21 +72,21 @@ def main():
                 continue
 
             dbh = dbhs[sample]
-            for row in dbh.execute(sql, (seqid,)):
-                out_fh.write('\t'.join([rec['qseqid'], sample] 
-                    + list(map(str,row))) + '\n')
+            for row in dbh.execute(sql, (subject_id,)):
+                out_fh.write('\t'.join((rec['query id'], sample)
+                    + tuple(map(str,row))) + '\n')
 
     out_fh.close()
     print('Done, see output file "{}"'.format(out_file))
 
 def get_args():
-    parser = argparse.ArgumentParser(description='Annotate BLAST for muSCOPE')
-    parser.add_argument('-b', '--blast_out', help='BLAST out file',
+    parser = argparse.ArgumentParser(description='Annotate LAST for muSCOPE')
+    parser.add_argument('-l', '--last_out', help='LAST out file',
         type=str, metavar='FILE', required=True)
     parser.add_argument('-a', '--annot_dir', help='Annotation directory',
         type=str, metavar='FILE', default='/work/03137/kyclark/ohana/sqlite')
     parser.add_argument('-o', '--out_dir', help='Output directory',
-        type=str, metavar='DIR', default='blast-annotated')
+        type=str, metavar='DIR', default='last-annotated')
     parser.add_argument('-v', '--verbose', help='Say more stuff',
         action='store_true')
     return parser.parse_args()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 This script inserts a header row into a BLAST output file. The header looks like this:
-    qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore
+    query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score, query length, subject length
 
 usage:
     python3 inserthdr.py test.fa-contigs.tab
@@ -10,23 +10,20 @@ import argparse
 import shutil
 
 
-def inserthdr(target_fp):
-
+def main(target_fp):
     target_with_header_fp = target_fp + '.add-hdr'
-    with open(target_fp, 'rt') as input_file:
-        if input_file.readline().startswith('qseqid'):
-            print('file "{}" already has a header row'.format(target_fp))
-        else:
-            input_file.seek(0)
-            with open(target_with_header_fp, 'wt') as output_file:
-
-                output_file.write(
-                    'qseqid\tsseqid\tpident\tlength\tmismatch\tgapopen\tqstart\tqend\tsstart\tsend\tevalue\tbitscore\n')
-                for line in input_file:
-                    output_file.write(line)
+    with open(target_fp, 'rt') as input_file, open(target_with_header_fp, 'wt') as output_file:
+        inserthdr(input_file, output_file)
 
     # this function will not copy file metadata
     shutil.move(target_with_header_fp, target_fp)
+
+
+def inserthdr(input_file, output_file):
+    for line in input_file:
+        output_file.write(line)
+        if line.startswith('# batch 0'):
+            output_file.write('query id\tsubject id\t% identity\talignment length\tmismatches\tgap opens\tq. start\tq. end\ts. start\ts. end\tevalue\tbit score\tquery length\tsubject length\n')
 
 
 def get_args():
