@@ -35,4 +35,4 @@ def get_args():
 
 if __name__ == '__main__':
     args = get_args()
-    inserthdr(**args.__dict__)
+    main(**args.__dict__)
