@@ -20,7 +20,7 @@ HOT_DIR=/work/03137/kyclark/ohana/HOT/HOT224*
 OUT_DIR=$SCRATCH/ohana/seq_db
 mkdir -p $OUT_DIR
 
-SQLITE_DB_JOBS="$$.sqlite.db.jobs"
+SQLITE_DB_JOBS="%j.sqlite.db.jobs"
 cat /dev/null > $SQLITE_DB_JOBS
 
 SEQ_FILES=$(mktemp)
