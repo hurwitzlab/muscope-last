@@ -21,7 +21,7 @@ cat /dev/null > $SQLITE_DB_JOBS
 
 HOT_DIR=/work/03137/kyclark/ohana/HOT/HOT224*
 OUT_DIR=$SCRATCH/ohana/seq_db
-mkdir -p $OUTDIR
+mkdir -p $OUT_DIR
 
 SEQ_FILES=$(mktemp)
 find $HOT_DIR -size +0c -name contigs.fa > $SEQ_FILES
@@ -30,7 +30,7 @@ find $HOT_DIR -size +0c -name proteins.faa >> $SEQ_FILES
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Building SQLite db with $FILE"
-  echo "python scripts/build_sqlite_seq_db.py -i \"$FILE\" -o \"${OUT_DIR}/ohana\"" >> $SQLITE_DB_JOBS
+  echo "build_sqlite_seq_db.py -i \"$FILE\" -o \"${OUT_DIR}/ohana\"" >> $SQLITE_DB_JOBS
 done < $SEQ_FILES
 
 echo "Starting launcher"
