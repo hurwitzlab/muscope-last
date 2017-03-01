@@ -13,7 +13,7 @@
 #SBATCH --mail-user jklynch@email.arizona.edu
 #------------------------------------------------------
 
-module load python3
+source activate mublast
 export LAUNCHER_DIR=~/src/launcher
 
 SQLITE_DB_JOBS="$$.sqlite.db.jobs"
