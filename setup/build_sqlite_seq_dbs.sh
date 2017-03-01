@@ -16,12 +16,12 @@
 source activate mublast
 export LAUNCHER_DIR=~/src/launcher
 
-SQLITE_DB_JOBS="$$.sqlite.db.jobs"
-cat /dev/null > $SQLITE_DB_JOBS
-
 HOT_DIR=/work/03137/kyclark/ohana/HOT/HOT224*
 OUT_DIR=$SCRATCH/ohana/seq_db
 mkdir -p $OUT_DIR
+
+SQLITE_DB_JOBS="$$.sqlite.db.jobs"
+cat /dev/null > $SQLITE_DB_JOBS
 
 SEQ_FILES=$(mktemp)
 find $HOT_DIR -size +0c -name contigs.fa > $SEQ_FILES
@@ -30,7 +30,7 @@ find $HOT_DIR -size +0c -name proteins.faa >> $SEQ_FILES
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Building SQLite db with $FILE"
-  echo "build_sqlite_seq_db.py -i \"$FILE\" -o \"${OUT_DIR}/ohana\"" >> $SQLITE_DB_JOBS
+  echo "python scripts/build_sqlite_seq_db.py -i \"$FILE\" -o \"${OUT_DIR}/ohana\"" >> $SQLITE_DB_JOBS
 done < $SEQ_FILES
 
 echo "Starting launcher"
@@ -49,7 +49,7 @@ export LAUNCHER_PPN=$SLURM_TASKS_PER_NODE
 export LAUNCHER_SCHED=dynamic
 
 export LAUNCHER_JOB_FILE=$SQLITE_DB_JOBS
-export LAUNCHER_NJOBS=$(wc -l $SQLITE_DB_JOBS)
+export LAUNCHER_NJOBS=$(wc -l < $SQLITE_DB_JOBS)
 
 echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
 echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
