@@ -30,7 +30,7 @@ find $HOT_DIR -size +0c -name proteins.faa >> $SEQ_FILES
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Building SQLite db with $FILE"
-  echo "python scripts/build_sqlite_seq_db.py -i \"$FILE\" -o \"${OUT_DIR}/ohana\"" >> $SQLITE_DB_JOBS
+  echo "python scripts/build_sqlite_seq_db.py -i \"$FILE\" -o \"${OUT_DIR}\"" >> $SQLITE_DB_JOBS
 done < $SEQ_FILES
 
 echo "Starting launcher"
