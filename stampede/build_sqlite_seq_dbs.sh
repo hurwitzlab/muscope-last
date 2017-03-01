@@ -3,11 +3,11 @@
 #-------------------------------------------------------
 #SBATCH -J build-sqlite-seq-dbs
 #SBATCH -N 1 
-#SBATCH -n 2
-#SBATCH -p development
+#SBATCH -n 16
+#SBATCH -p normal
 #SBATCH -e build-sqlite-seq-dbs.e%j
 #SBATCH -o build-sqlite-seq-dbs.o%j
-#SBATCH -t 00:30:00
+#SBATCH -t 01:00:00
 #SBATCH -A iPlant-Collabs
 #SBATCH --mail-type BEGIN,END,FAIL
 #SBATCH --mail-user jklynch@email.arizona.edu
@@ -16,11 +16,11 @@
 source activate mublast
 export LAUNCHER_DIR=~/src/launcher
 
-HOT_DIR=/work/03137/kyclark/ohana/HOT/HOT224*
+HOT_DIR=/work/03137/kyclark/ohana/HOT
 OUT_DIR=$SCRATCH/ohana/seq_db
 mkdir -p $OUT_DIR
 
-SQLITE_DB_JOBS="%j.sqlite.db.jobs"
+SQLITE_DB_JOBS="${SLURM_JOB_ID}.sqlite.db.jobs"
 cat /dev/null > $SQLITE_DB_JOBS
 
 SEQ_FILES=$(mktemp)
@@ -39,9 +39,12 @@ echo "  SLURM_NTASKS=$SLURM_NTASKS"
 echo "  SLURM_JOB_CPUS_PER_NODE=$SLURM_JOB_CPUS_PER_NODE"
 echo "  SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
 
+BIN=$( cd "$( dirname "%0" )" $$ pwd)
+echo " BIN dir: $BIN"
+
 export LAUNCHER_DIR="$HOME/src/launcher"
 export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
-export LAUNCHER_WORKDIR=.
+export LAUNCHER_WORKDIR=$BIN
 export LAUNCHER_RMI=SLURM
 export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
 export LAUNCHER_NPROCS=$SLURM_TASKS_PER_NODE
