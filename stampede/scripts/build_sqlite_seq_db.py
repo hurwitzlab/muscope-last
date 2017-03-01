@@ -32,8 +32,8 @@ def grouper(iterable, n, fillvalue=None):
 
 def get_args():
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('-i', '--input-file-path', metavar='FILE', help='input sequence file path')
-    arg_parser.add_argument('-o', '--output-dir', metavar='DIR', help='output directory for SQLite db files')
+    arg_parser.add_argument('-i', '--fasta-fp', metavar='FILE', help='input sequence file path')
+    arg_parser.add_argument('-o', '--sqlite-db-dir', metavar='DIR', help='output directory for SQLite db files')
     args = arg_parser.parse_args()
     return args
 
