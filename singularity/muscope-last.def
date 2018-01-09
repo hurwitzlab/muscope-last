@@ -1,0 +1,47 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%runscript
+    . /environment
+    megahit $@
+
+%setup
+    # mount the imicrobe-last directory for use in %post
+    mkdir "$SINGULARITY_ROOTFS/imicrobe-last"
+    mount --no-mtab --bind `pwd` "$SINGULARITY_ROOTFS/imicrobe-last"
+
+%post
+    apt update
+    apt install -y apt-utils git zlib1g-dev zip build-essential python python3 wget
+
+    # create a directory for installed dependencies
+    APP_DIR=/muscope-last-app
+    mkdir -p $APP_DIR
+
+    # install scripts
+    SCRIPTS_DIR=${APP_DIR}/scripts
+    mkdir ${SCRIPTS_DIR}
+    cp /imicrobe-last/scripts/*.py ${APP_DIR}/scripts/
+
+    # install LAST
+    cd $APP_DIR
+    wget http://last.cbrc.jp/last-921.zip
+    unzip last-921.zip
+    cd last-921
+    make
+    make install
+
+    # add environment variables to /environment file
+    echo "\nexport PATH=${SCRIPTS_DIR}:\$PATH" >> /environment
+
+    # create mount points for TACC directories
+    mkdir /home1
+    mkdir /scratch
+    mkdir /work
+
+%test
+    . /environment
+    echo "PATH=${PATH}"
+
+    lastal --version
+    python3 --version
