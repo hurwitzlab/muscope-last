@@ -11,13 +11,12 @@ QUERY=""
 OUT_DIR="$BIN"
 NUM_THREADS=$SLURM_TASKS_PER_NODE
 
-# LAST was built with gcc
-module load gcc/4.9.3
+module load singularity
 
-source activate mublast
-
-# after source activate mublast
 set -u
+
+# is the singularity container here?
+ls -l
 
 function lc() {
   wc -l "$1" | cut -d ' ' -f 1
@@ -75,18 +74,18 @@ done
 # otherwise, you would need to "chmod +x" the files or execute
 # like "python script.py ..."
 #
-SCRIPTS="bin.tgz"
-if [[ -e $SCRIPTS ]]; then
-  echo "Untarring $SCRIPTS to bin"
-  if [[ ! -d bin ]]; then
-    mkdir bin
-  fi
-  tar -C bin -xvf $SCRIPTS
-fi
-
-if [[ -e "$BIN/bin" ]]; then
-  PATH="$BIN/bin:$PATH"
-fi
+#SCRIPTS="bin.tgz"
+#if [[ -e $SCRIPTS ]]; then
+#  echo "Untarring $SCRIPTS to bin"
+#  if [[ ! -d bin ]]; then
+#    mkdir bin
+#  fi
+#  tar -C bin -xvf $SCRIPTS
+#fi
+#
+#if [[ -e "$BIN/bin" ]]; then
+#  PATH="$BIN/bin:$PATH"
+#fi
 
 if [[ $NUM_THREADS -lt 1 ]]; then
   echo "NUM_THREADS \"$NUM_THREADS\" cannot be less than 1"
@@ -125,7 +124,6 @@ if [[ ! -d "$LAST_DIR" ]]; then
   exit 1
 fi
 
-LAST_DIR="$JKL_WORK/ohana/last"
 LAST_ARGS="-v -f BlastTab+ -P $NUM_THREADS"
 LAST_PARAM="$$.last.param"
 
@@ -152,9 +150,11 @@ while read INPUT_FILE; do
     TYPE="rna"
   fi
 
+  SINGULARITY_EXEC='singularity exec muscope-last.img'
+
   LAST_TO_DNA=""
   if [[ $TYPE == 'dna' ]]; then 
-    LAST_TO_DNA='lastal'
+    LAST_TO_DNA="${SINGULARITY_EXEC} lastal"
   #elif [[ $TYPE == 'prot' ]]; then
   #  LAST_TO_DNA='lastal'
   else
@@ -168,9 +168,9 @@ while read INPUT_FILE; do
 
   LAST_TO_PROT=""
   if [[ $TYPE == 'dna' ]]; then 
-    LAST_TO_PROT='lastal -F15'
+    LAST_TO_PROT="${SINGULARITY_EXEC} lastal -F15"
   elif [[ $TYPE == 'prot' ]]; then
-    LAST_TO_PROT='lastal'
+    LAST_TO_PROT="${SINGULARITY_EXEC} lastal"
   else
     echo "Cannot LAST $BASENAME to PROT (not DNA or prot)"
   fi
@@ -222,7 +222,7 @@ find $LAST_OUT_DIR -size +0c -name \*-proteins.tab >> $GENE_PROTEIN_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Annotating $FILE"
-  echo "annotate.py -l \"$FILE\" -a \"${KYC_WORK}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
+  echo "${SINGULARITY_EXEC} python3 annotate.py -l \"$FILE\" -a \"${KYC_WORK}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
 done < $GENE_PROTEIN_HITS
 
 # Probably should run the above annotation with launcher, but I was 
@@ -258,7 +258,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Extracting Ohana sequences of LAST hits for $FILE"
-  echo "python3 $BIN/bin/extractseqs.py \"$FILE\"  \"${KYC_WORK}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
+  echo "${SINGULARITY_EXEC} python3 extractseqs.py \"$FILE\"  \"${KYC_WORK}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
 done < $LAST_HITS
 
 echo "Starting launcher for Ohana sequence extraction"
@@ -291,7 +291,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Inserting header in LAST output $FILE"
-  echo "python3 $BIN/bin/inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
+  echo "${SINGULARITY_EXEC} python3 inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
 done < $LAST_HITS
 
 echo "Starting launcher for LAST header insertion"
@@ -316,4 +316,4 @@ rm "$INSERTHDR_PARAMS"
 #
 # Clean up the bin directory
 #
-rm -rf $BIN/bin
+##rm -rf $BIN/bin

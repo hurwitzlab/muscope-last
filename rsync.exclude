@@ -1,7 +1,7 @@
 .cache
 .DS_Store
 .idea
-.git
+.git*
 *.img*
 *.pyc
 __pycache__

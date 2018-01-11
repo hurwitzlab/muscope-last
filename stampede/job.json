@@ -1,6 +1,6 @@
 {
   "name": "muscope-last-test",
-  "appId": "muscope-last-0.0.1",
+  "appId": "muscope-last-0.0.2",
   "archive": true,
   "inputs": {
     "QUERY": "agave://data.iplantcollaborative.org/jklynch/data/muscope/last/test.fa"
