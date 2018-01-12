@@ -41,7 +41,7 @@ apps-addupdate:
 deploy-app: clean files-delete files-upload apps-addupdate
 
 share-app:
-	systems-roles-addupdate -v -u <share-with-user> -r USER tacc-stampede-$(CYVERSEUSERNAME)
+	systems-roles-addupdate -v -u <share-with-user> -r USER tacc-stampede2-$(CYVERSEUSERNAME)
 	apps-pems-update -v -u <share-with-user> -p READ_EXECUTE $(APP)-$(VERSION)
 
 lytic-rsync-dry-run:
