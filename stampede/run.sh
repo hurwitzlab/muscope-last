@@ -11,7 +11,7 @@ QUERY=""
 OUT_DIR="$BIN"
 NUM_THREADS=$SLURM_TASKS_PER_NODE
 
-module load singularity
+module load tacc-singularity
 
 set -u
 
