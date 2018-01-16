@@ -12,10 +12,8 @@ OUT_DIR="$BIN"
 NUM_THREADS=$SLURM_TASKS_PER_NODE
 
 # LAST was built with gcc
-module load gcc/4.9.3
 module load tacc-singularity
 
-# after source activate mublast
 set -u
 
 function lc() {
