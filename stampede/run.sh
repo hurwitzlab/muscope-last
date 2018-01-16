@@ -3,7 +3,7 @@
 # Author: Ken Youens-Clark <kyclark@email.arizona.edu>
 # Author: Joshua Lynch <jklynch@email.arizona.edu>
 
-KYC_WORK=/work/03137/kyclark
+IMICROBE_WORK=/work/05066/imicrobe/iplantc.org/data
 JKL_WORK=/work/04658/jklynch
 
 BIN=$( cd "$( dirname "$0" )" && pwd )
@@ -11,12 +11,12 @@ QUERY=""
 OUT_DIR="$BIN"
 NUM_THREADS=$SLURM_TASKS_PER_NODE
 
+# LAST was built with gcc
+module load gcc/4.9.3
 module load tacc-singularity
 
+# after source activate mublast
 set -u
-
-# is the singularity container here?
-ls -l
 
 function lc() {
   wc -l "$1" | cut -d ' ' -f 1
@@ -33,7 +33,7 @@ function HELP() {
   echo " -p PCT_ID ($PCT_ID)"
   echo " -o OUT_DIR ($OUT_DIR)"
   echo " -n NUM_THREADS ($NUM_THREADS)"
-  echo 
+  echo
   exit 0
 }
 
@@ -68,24 +68,24 @@ while getopts :o:n:p:q:h OPT; do
   esac
 done
 
-# 
-# TACC docs recommend tar'ing a "bin" dir of scripts in order 
-# to maintain file permissions such as the executable bit; 
+#
+# TACC docs recommend tar'ing a "bin" dir of scripts in order
+# to maintain file permissions such as the executable bit;
 # otherwise, you would need to "chmod +x" the files or execute
 # like "python script.py ..."
 #
-#SCRIPTS="bin.tgz"
-#if [[ -e $SCRIPTS ]]; then
-#  echo "Untarring $SCRIPTS to bin"
-#  if [[ ! -d bin ]]; then
-#    mkdir bin
-#  fi
-#  tar -C bin -xvf $SCRIPTS
-#fi
-#
-#if [[ -e "$BIN/bin" ]]; then
-#  PATH="$BIN/bin:$PATH"
-#fi
+SCRIPTS="bin.tgz"
+if [[ -e $SCRIPTS ]]; then
+  echo "Untarring $SCRIPTS to bin"
+  if [[ ! -d bin ]]; then
+    mkdir bin
+  fi
+  tar -C bin -xvf $SCRIPTS
+fi
+
+if [[ -e "$BIN/bin" ]]; then
+  PATH="$BIN/bin:$PATH"
+fi
 
 if [[ $NUM_THREADS -lt 1 ]]; then
   echo "NUM_THREADS \"$NUM_THREADS\" cannot be less than 1"
@@ -114,7 +114,7 @@ if [[ $NUM_INPUT -lt 1 ]]; then
   exit 1
 fi
 
-# Here is a place for fasplit.py to ensure not too 
+# Here is a place for fasplit.py to ensure not too
 # many sequences in each query.
 
 LAST_DIR="$JKL_WORK/ohana/last"
@@ -124,6 +124,7 @@ if [[ ! -d "$LAST_DIR" ]]; then
   exit 1
 fi
 
+LAST_DIR="$JKL_WORK/ohana/last"
 LAST_ARGS="-v -f BlastTab+ -P $NUM_THREADS"
 LAST_PARAM="$$.last.param"
 
@@ -150,11 +151,9 @@ while read INPUT_FILE; do
     TYPE="rna"
   fi
 
-  SINGULARITY_EXEC='singularity exec muscope-last.img'
-
   LAST_TO_DNA=""
-  if [[ $TYPE == 'dna' ]]; then 
-    LAST_TO_DNA="${SINGULARITY_EXEC} lastal"
+  if [[ $TYPE == 'dna' ]]; then
+    LAST_TO_DNA='lastal'
   #elif [[ $TYPE == 'prot' ]]; then
   #  LAST_TO_DNA='lastal'
   else
@@ -167,10 +166,10 @@ while read INPUT_FILE; do
   fi
 
   LAST_TO_PROT=""
-  if [[ $TYPE == 'dna' ]]; then 
-    LAST_TO_PROT="${SINGULARITY_EXEC} lastal -F15"
+  if [[ $TYPE == 'dna' ]]; then
+    LAST_TO_PROT='lastal -F15'
   elif [[ $TYPE == 'prot' ]]; then
-    LAST_TO_PROT="${SINGULARITY_EXEC} lastal"
+    LAST_TO_PROT='lastal'
   else
     echo "Cannot LAST $BASENAME to PROT (not DNA or prot)"
   fi
@@ -188,7 +187,7 @@ echo "  SLURM_NTASKS=$SLURM_NTASKS"
 echo "  SLURM_JOB_CPUS_PER_NODE=$SLURM_JOB_CPUS_PER_NODE"
 echo "  SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
 
-export LAUNCHER_DIR="$WORK/tacc/launcher"
+export LAUNCHER_DIR="$HOME/src/launcher"
 export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
 export LAUNCHER_WORKDIR=$BIN
 export LAUNCHER_RMI=SLURM
@@ -212,7 +211,7 @@ rm $LAST_PARAM
 #
 # Now we need to add Eggnog (and eventually Pfam, KEGG, etc.)
 # annotations to the "*-genes.tab" files.
-# 
+#
 ANNOT_PARAM="$$.annot.param"
 cat /dev/null > $ANNOT_PARAM
 
@@ -222,10 +221,10 @@ find $LAST_OUT_DIR -size +0c -name \*-proteins.tab >> $GENE_PROTEIN_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Annotating $FILE"
-  echo "${SINGULARITY_EXEC} python3 /muscope-last-app/scripts/annotate.py -l \"$FILE\" -a \"${KYC_WORK}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
+  echo "annotate.py -l \"$FILE\" -a \"${IMICROBE_WORK}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
 done < $GENE_PROTEIN_HITS
 
-# Probably should run the above annotation with launcher, but I was 
+# Probably should run the above annotation with launcher, but I was
 # having problems with this.
 echo "Starting launcher for annotation"
 # one thread per task here
@@ -258,7 +257,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Extracting Ohana sequences of LAST hits for $FILE"
-  echo "${SINGULARITY_EXEC} python3 /muscope-last-app/scripts/extractseqs.py \"$FILE\"  \"${KYC_WORK}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
+  echo "python3 $BIN/bin/extractseqs.py \"$FILE\"  \"${IMICROBE_WORK}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
 done < $LAST_HITS
 
 echo "Starting launcher for Ohana sequence extraction"
@@ -291,7 +290,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Inserting header in LAST output $FILE"
-  echo "${SINGULARITY_EXEC} python3 /muscope-last-app/scripts/inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
+  echo "python3 $BIN/bin/inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
 done < $LAST_HITS
 
 echo "Starting launcher for LAST header insertion"
@@ -316,4 +315,4 @@ rm "$INSERTHDR_PARAMS"
 #
 # Clean up the bin directory
 #
-##rm -rf $BIN/bin
+rm -rf $BIN/bin
