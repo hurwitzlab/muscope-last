@@ -2,7 +2,7 @@
 #
 #-------------------------------------------------------
 #SBATCH -J build-sqlite-seq-dbs
-#SBATCH -N 1 
+#SBATCH -N 1
 #SBATCH -n 16
 #SBATCH -p normal
 #SBATCH -e build-sqlite-seq-dbs.e%j
@@ -13,7 +13,6 @@
 #SBATCH --mail-user jklynch@email.arizona.edu
 #------------------------------------------------------
 
-source activate mublast
 export LAUNCHER_DIR=~/src/launcher
 
 HOT_DIR=/work/03137/kyclark/ohana/HOT

@@ -11,8 +11,10 @@ QUERY=""
 OUT_DIR="$BIN"
 NUM_THREADS=$SLURM_TASKS_PER_NODE
 
-# LAST was built with gcc
 module load tacc-singularity
+
+# is the singularity image here?
+ls -l
 
 set -u
 

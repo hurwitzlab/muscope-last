@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J build-proteins-last-dbs
-#SBATCH -N 1 
+#SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -p largemem
 #SBATCH -e build-proteins-last-dbs.e%j
@@ -11,10 +11,7 @@
 #SBATCH --mail-user jklynch@email.arizona.edu
 #------------------------------------------------------
 
-module load gcc/4.9.3
-
 ls -l $WORK/ohana_lastdb/
 rm $WORK/ohana_lastdb/HOT_proteins*
 lastdb -cR01 -p -v $WORK/ohana_lastdb/HOT_proteins /work/03137/kyclark/ohana/HOT/HOT*/proteins.faa
 ls -l $WORK/ohana_lastdb/
-
