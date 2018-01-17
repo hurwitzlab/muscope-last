@@ -13,7 +13,7 @@
 #SBATCH --mail-user jklynch@email.arizona.edu
 #------------------------------------------------------
 
-export LAUNCHER_DIR=~/src/launcher
+export LAUNCHER_DIR=${WORK}/tacc/launcher
 
 HOT_DIR=/work/03137/kyclark/ohana/HOT
 OUT_DIR=$SCRATCH/ohana/seq_db

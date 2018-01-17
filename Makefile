@@ -1,42 +1,42 @@
-PROJECT=muscope
+PROJECT = muscope
 APP = muscope-last
-VERSION = 0.0.2
+VERSION = 0.0.3
 EMAIL = $(CYVERSEUSERNAME)@email.arizona.edu
 
 clean:
 	find . \( -name \*.conf -o -name \*.out -o -name \*.log -o -name \*.param -o -name launcher_jobfile_\* \) -exec rm {} \;
 
 container:
-	rm -f stampede/$(APP).img
-	sudo singularity create --size 1000 stampede/$(APP).img
-	sudo singularity bootstrap stampede/$(APP).img singularity/$(APP).def
-	sudo chown --reference=singularity/$(APP).def stampede/$(APP).img
+	rm -f stampede2/$(APP).img
+	sudo singularity create --size 1000 stampede2/$(APP).img
+	sudo singularity bootstrap stampede2/$(APP).img singularity/$(APP).def
+	sudo chown --reference=singularity/$(APP).def stampede2/$(APP).img
 
 iput-container:
-	iput -fK stampede/$(APP).img
+	iput -fK stampede2/$(APP).img
 
 iget-container:
 	iget -fK $(APP).img
-	mv $(APP).img stampede/
+	mv $(APP).img stampede2/
 	irm $(APP).img
 
 test:
 	sbatch test.sh
 
 submit-test-job:
-	jobs-submit -F stampede/job.json
+	jobs-submit -F stampede2/job.json
 
 submit-test-job-to-public-app:
-	jobs-submit -F stampede/job-public-app.json
+	jobs-submit -F stampede2/job-public-app.json
 
 files-delete:
 	files-delete $(CYVERSEUSERNAME)/applications/$(APP)-$(VERSION)
 
 files-upload:
-	files-upload -F stampede/ $(CYVERSEUSERNAME)/applications/$(APP)-$(VERSION)
+	files-upload -F stampede2/ $(CYVERSEUSERNAME)/applications/$(APP)-$(VERSION)
 
 apps-addupdate:
-	apps-addupdate -F stampede/app.json
+	apps-addupdate -F stampede2/app.json
 
 deploy-app: clean files-delete files-upload apps-addupdate
 
