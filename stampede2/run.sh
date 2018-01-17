@@ -11,7 +11,7 @@ QUERY=""
 OUT_DIR="$BIN"
 NUM_THREADS=$SLURM_TASKS_PER_NODE
 
-module load tacc-launcher
+module load launcher
 module load tacc-singularity
 
 # is the singularity image here?
