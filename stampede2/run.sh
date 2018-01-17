@@ -11,6 +11,7 @@ QUERY=""
 OUT_DIR="$BIN"
 NUM_THREADS=$SLURM_TASKS_PER_NODE
 
+module load tacc-launcher
 module load tacc-singularity
 
 # is the singularity image here?
@@ -153,7 +154,7 @@ while read INPUT_FILE; do
 
   LAST_TO_DNA=""
   if [[ $TYPE == 'dna' ]]; then
-    LAST_TO_DNA='lastal'
+    LAST_TO_DNA='singulariy exec muscope-last.img lastal'
   #elif [[ $TYPE == 'prot' ]]; then
   #  LAST_TO_DNA='lastal'
   else
@@ -167,9 +168,9 @@ while read INPUT_FILE; do
 
   LAST_TO_PROT=""
   if [[ $TYPE == 'dna' ]]; then
-    LAST_TO_PROT='lastal -F15'
+    LAST_TO_PROT='singularity exec muscope-last.img lastal -F15'
   elif [[ $TYPE == 'prot' ]]; then
-    LAST_TO_PROT='lastal'
+    LAST_TO_PROT='singularity exec muscope-last.img lastal'
   else
     echo "Cannot LAST $BASENAME to PROT (not DNA or prot)"
   fi
@@ -187,7 +188,7 @@ echo "  SLURM_NTASKS=$SLURM_NTASKS"
 echo "  SLURM_JOB_CPUS_PER_NODE=$SLURM_JOB_CPUS_PER_NODE"
 echo "  SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
 
-export LAUNCHER_DIR="$WORK/tacc/launcher"
+export LAUNCHER_DIR=$TACC_LAUNCHER_DIR
 export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
 export LAUNCHER_WORKDIR=$BIN
 export LAUNCHER_RMI=SLURM
@@ -221,7 +222,7 @@ find $LAST_OUT_DIR -size +0c -name \*-proteins.tab >> $GENE_PROTEIN_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Annotating $FILE"
-  echo "annotate.py -l \"$FILE\" -a \"${IMICROBE_WORK}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
+  echo "singularity exec muscope-last.img python3 annotate.py -l \"$FILE\" -a \"${IMICROBE_WORK}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
 done < $GENE_PROTEIN_HITS
 
 # Probably should run the above annotation with launcher, but I was
@@ -257,7 +258,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Extracting Ohana sequences of LAST hits for $FILE"
-  echo "python3 $BIN/bin/extractseqs.py \"$FILE\"  \"${IMICROBE_WORK}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
+  echo "singularity exec muscope-last.img python3 extractseqs.py \"$FILE\"  \"${IMICROBE_WORK}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
 done < $LAST_HITS
 
 echo "Starting launcher for Ohana sequence extraction"
@@ -290,7 +291,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Inserting header in LAST output $FILE"
-  echo "python3 $BIN/bin/inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
+  echo "singularity exec muscope-last.img python3 inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
 done < $LAST_HITS
 
 echo "Starting launcher for LAST header insertion"
