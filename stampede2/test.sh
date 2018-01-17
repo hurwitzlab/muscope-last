@@ -9,10 +9,14 @@
 #SBATCH --mail-type BEGIN,END,FAIL
 #SBATCH --mail-user jklynch@email.arizona.edu
 
-OUT_DIR="$SCRATCH/muscope-last/test"
+module load irods
 
+OUT_DIR="$SCRATCH/muscope-last/test"
 if [[ -d $OUT_DIR ]]; then
   rm -rf $OUT_DIR
 fi
+mkdir -p $SCRATCH/muscope-last/test
 
-run.sh -q "$SCRATCH/muscope-last/test.fa" -o $OUT_DIR
+iget /iplant/home/jklynch/data/muscope/last/test.fa
+
+run.sh -q test.fa -o $OUT_DIR
