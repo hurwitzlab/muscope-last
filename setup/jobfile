@@ -1,3 +1,6 @@
-lastdb -cR01    $WORK/ohana_lastdb/HOT_contigs /work/03137/kyclark/ohana/HOT/HOT238_2_1000m/contigs.fa
-lastdb -cR01    $WORK/ohana_lastdb/HOT_genes /work/03137/kyclark/ohana/HOT/HOT238_2_1000m/genes.fa
-lastdb -cR01 -p $WORK/ohana_lastdb/HOT_proteins /work/03137/kyclark/ohana/HOT/HOT238_2_1000m/proteins.fa
+singularity exec ../stampede2/muscope-last.img \
+    lastdb -cR01    /work/05066/imicrobe/iplantc.org/data/ohana/last/HOT_contigs /work/05066/imicrobe/iplantc.org/data/ohana/HOT/HOT238_2_1000m/contigs.fa
+singularity exec ../stampede2/muscope-last.img \
+    lastdb -cR01    /work/05066/imicrobe/iplantc.org/data/ohana/last/HOT_genes /work/05066/imicrobe/iplantc.org/data/ohana/HOT/HOT238_2_1000m/genes.fa
+singularity exec ../stampede2/muscope-last.img \
+    lastdb -cR01 -p /work/05066/imicrobe/iplantc.org/data/ohana/last/HOT_proteins /work/05066/imicrobe/iplantc.org/data/ohana/HOT/HOT238_2_1000m/proteins.fa
