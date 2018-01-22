@@ -4,6 +4,7 @@
 # Author: Joshua Lynch <jklynch@email.arizona.edu>
 
 IMICROBE_WORK=/work/05066/imicrobe/iplantc.org/data
+# TODO: move the last dbs to IMICROBE_WORK
 JKL_WORK=/work/04658/jklynch
 
 BIN=$( cd "$( dirname "$0" )" && pwd )

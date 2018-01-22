@@ -17,6 +17,7 @@ if [[ -d $OUT_DIR ]]; then
 fi
 mkdir -p $SCRATCH/muscope-last/test
 
-iget /iplant/home/jklynch/data/muscope/last/test.fa
+# why not work?
+#iget /iplant/home/jklynch/data/muscope/last/test.fa
 
 run.sh -q test.fa -o $OUT_DIR
