@@ -1,21 +1,21 @@
 #!/bin/bash
-#
-#-------------------------------------------------------
-#SBATCH -J build-sqlite-seq-dbs
-#SBATCH -N 1
-#SBATCH -n 16
-#SBATCH -p normal
-#SBATCH -e build-sqlite-seq-dbs.e%j
-#SBATCH -o build-sqlite-seq-dbs.o%j
-#SBATCH -t 01:00:00
+
 #SBATCH -A iPlant-Collabs
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -t 02:00:00
+#SBATCH -p skx-normal
+#SBATCH -J build-sqlite-seq-dbs
 #SBATCH --mail-type BEGIN,END,FAIL
 #SBATCH --mail-user jklynch@email.arizona.edu
-#------------------------------------------------------
 
-export LAUNCHER_DIR=${WORK}/tacc/launcher
+module load launcher
+module load tacc-singularity
 
-HOT_DIR=/work/03137/kyclark/ohana/HOT
+export LAUNCHER_DIR=${TACC_LAUNCHER_DIR}
+
+#HOT_DIR=/work/03137/kyclark/ohana/HOT
+HOT_DIR=/work/05066/imicrobe/iplantc.org/data/ohana/HOT
 OUT_DIR=$SCRATCH/ohana/seq_db
 mkdir -p $OUT_DIR
 
@@ -29,7 +29,7 @@ find $HOT_DIR -size +0c -name proteins.faa >> $SEQ_FILES
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Building SQLite db with $FILE"
-  echo "python scripts/build_sqlite_seq_db.py -i \"$FILE\" -o \"${OUT_DIR}\"" >> $SQLITE_DB_JOBS
+  echo "singularity exec muscope-last.img python /scripts/build_sqlite_seq_db.py -i \"$FILE\" -o \"${OUT_DIR}\"" >> $SQLITE_DB_JOBS
 done < $SEQ_FILES
 
 echo "Starting launcher"
