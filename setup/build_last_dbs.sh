@@ -10,7 +10,9 @@
 #SBATCH --mail-user jklynch@email.arizona.edu
 
 module load launcher
+module load tacc-singularity
 
+export LAUNCHER_DIR=$TACC_LAUNCHER_DIR
 export LAUNCHER_PLUGIN_DIR=$TACC_LAUNCHER_DIR/plugins
 export LAUNCHER_RMI=SLURM
 export LAUNCHER_JOB_FILE=jobfile
