@@ -17,5 +17,5 @@ LAST_DB_DIR=/work/05066/imicrobe/iplantc.org/data/ohana/last
 
 ls -l $LAST_DB_DIR
 rm -f $LAST_DB_DIR/HOT_genes*
-singularity exec ../stampede2/muscope-last.img lastdb -cR01 -v $LAST_DB_DIR/HOT_genes $OHANA_HOT_DIR/HOT*/genes.fna
+singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P 0 -v $LAST_DB_DIR/HOT_genes $OHANA_HOT_DIR/HOT*/genes.fna
 ls -l $LAST_DB_DIR

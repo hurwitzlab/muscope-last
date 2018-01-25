@@ -18,5 +18,5 @@ LAST_DB_DIR=/work/05066/imicrobe/iplantc.org/data/ohana/last
 
 ls -l $LAST_DB_DIR
 rm -f $LAST_DB_DIR/HOT_proteins*
-singularity exec ../stampede2/muscope-last.img lastdb -cR01 -p -v $LAST_DB_DIR/HOT_proteins $OHANA_HOT_DIR/HOT*/proteins.faa
+singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P 0 -p -v $LAST_DB_DIR/HOT_proteins $OHANA_HOT_DIR/HOT*/proteins.faa
 ls -l $LAST_DB_DIR
