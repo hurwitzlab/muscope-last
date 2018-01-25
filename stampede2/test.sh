@@ -9,15 +9,16 @@
 #SBATCH --mail-type BEGIN,END,FAIL
 #SBATCH --mail-user jklynch@email.arizona.edu
 
-module load irods
+#module load irods
 
 OUT_DIR="$SCRATCH/muscope-last/test"
 if [[ -d $OUT_DIR ]]; then
   rm -rf $OUT_DIR
 fi
-mkdir -p $SCRATCH/muscope-last/test
+mkdir -p $OUT_DIR
 
-# why not work?
-#iget /iplant/home/jklynch/data/muscope/last/test.fa
+iget /iplant/home/jklynch/data/muscope/last/test.fa
 
 run.sh -q test.fa -o $OUT_DIR
+
+rm test.fa
