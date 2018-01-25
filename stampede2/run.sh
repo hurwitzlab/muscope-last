@@ -135,7 +135,7 @@ while read INPUT_FILE; do
 
   LAST_TO_DNA=""
   if [[ $TYPE == 'dna' ]]; then
-    LAST_TO_DNA='singulariy exec muscope-last.img lastal'
+    LAST_TO_DNA='singularity exec muscope-last.img lastal'
   #elif [[ $TYPE == 'prot' ]]; then
   #  LAST_TO_DNA='lastal'
   else
