@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import itertools
 import os
@@ -41,7 +39,6 @@ def get_args():
 
 def build_seq_dbs(fasta_fp, sqlite_db_dir):
     print('reading {}'.format(fasta_fp))
-    sequence_group_count = 100000
     #fasta_fp = '/home/jklynch/host/project/muscope/ohana/HOT224_1_0025m/HOT224_1_0025m.fa'
     fasta_dir_path, fasta_filename = os.path.split(fasta_fp)
     _, fasta_parent_dir = os.path.split(fasta_dir_path)
@@ -59,14 +56,17 @@ def build_seq_dbs(fasta_fp, sqlite_db_dir):
 
     with open(fasta_fp, 'rt') as fasta_file:
         t0 = time.time()
+        sequence_group_count = 100000
         for i, sequence_group in enumerate(grouper(SeqIO.parse(fasta_file, 'fasta'), sequence_group_count)):
             session.add_all(
-                (OhanaSequence(id=seq.id, seq=str(seq.seq)) for seq in sequence_group if seq is not None)
+                (OhanaSequence(id=seq.id, seq=str(seq.seq))
+                for seq
+                in sequence_group
+                if seq is not None)
             )
-
             session.commit()
-            t1 = time.time()
-            print('committed {} sequences to {} in {:5.2f}s'.format((i + 1) * sequence_group_count, sqlite_db_url, t1-t0))
+            print('committed {} sequences to {} in {:5.2f}s'.format(
+                (i + 1) * sequence_group_count, sqlite_db_url, time.time()-t0))
 
 
 if __name__ == '__main__':
