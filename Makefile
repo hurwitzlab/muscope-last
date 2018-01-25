@@ -21,7 +21,7 @@ iget-container:
 	irm $(APP).img
 
 test:
-	sbatch test.sh
+	cd stampede2; sbatch test.sh
 
 submit-test-job:
 	jobs-submit -F stampede2/job.json
