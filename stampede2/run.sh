@@ -9,7 +9,8 @@ IMICROBE_DATA_DIR=/work/05066/imicrobe/iplantc.org/data
 QUERY=""
 OUT_DIR=$(pwd)  ##"$BIN"
 # SKX nodes have 48 cores
-NUM_THREADS=48
+# let two tasks run at once
+NUM_THREADS=24
 
 module load launcher
 module load tacc-singularity
@@ -177,8 +178,8 @@ export LAUNCHER_JOB_FILE=$LAST_PARAM
 #export LAUNCHER_NJOBS=$(lc $LAST_PARAM)
 #export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
 #export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS \/ $NUM_THREADS`
-# devote all cores to each task
-export LAUNCHER_PPN=1
+# run two tasks at once
+export LAUNCHER_PPN=2
 export LAUNCHER_SCHED=dynamic
 
 #echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
