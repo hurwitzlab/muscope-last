@@ -20,6 +20,9 @@ iget-container:
 	mv $(APP).img stampede2/
 	irm $(APP).img
 
+setup:
+	cd setup; sbatch build_contigs_last_db.sh; sbatch build_genes_last_db.sh; sbatch build_proteins_last_db.sh; sbatch build_sqlite_seq_dbs.sh
+
 test:
 	cd stampede2; sbatch test.sh
 
