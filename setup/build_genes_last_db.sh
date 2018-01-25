@@ -5,7 +5,7 @@
 #SBATCH -p skx-normal
 #SBATCH -e build-genes-last-dbs.e%j
 #SBATCH -o build-genes-last-dbs.o%j
-#SBATCH -t 06:00:00
+#SBATCH -t 24:00:00
 #SBATCH -A iPlant-Collabs
 #SBATCH --mail-type BEGIN,END,FAIL
 #SBATCH --mail-user jklynch@email.arizona.edu
