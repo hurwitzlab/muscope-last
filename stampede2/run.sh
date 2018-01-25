@@ -3,14 +3,13 @@
 # Author: Ken Youens-Clark <kyclark@email.arizona.edu>
 # Author: Joshua Lynch <jklynch@email.arizona.edu>
 
-IMICROBE_WORK=/work/05066/imicrobe/iplantc.org/data
-# TODO: move the last dbs to IMICROBE_WORK
-JKL_WORK=/work/04658/jklynch
+IMICROBE_DATA_DIR=/work/05066/imicrobe/iplantc.org/data
 
-BIN=$( cd "$( dirname "$0" )" && pwd )
+##BIN=$( cd "$( dirname "$0" )" && pwd )
 QUERY=""
-OUT_DIR="$BIN"
-NUM_THREADS=$SLURM_TASKS_PER_NODE
+OUT_DIR=$(pwd)  ##"$BIN"
+# SKX nodes have 48 cores
+NUM_THREADS=48
 
 module load launcher
 module load tacc-singularity
@@ -70,25 +69,6 @@ while getopts :o:n:p:q:h OPT; do
   esac
 done
 
-#
-# TACC docs recommend tar'ing a "bin" dir of scripts in order
-# to maintain file permissions such as the executable bit;
-# otherwise, you would need to "chmod +x" the files or execute
-# like "python script.py ..."
-#
-SCRIPTS="bin.tgz"
-if [[ -e $SCRIPTS ]]; then
-  echo "Untarring $SCRIPTS to bin"
-  if [[ ! -d bin ]]; then
-    mkdir bin
-  fi
-  tar -C bin -xvf $SCRIPTS
-fi
-
-if [[ -e "$BIN/bin" ]]; then
-  PATH="$BIN/bin:$PATH"
-fi
-
 if [[ $NUM_THREADS -lt 1 ]]; then
   echo "NUM_THREADS \"$NUM_THREADS\" cannot be less than 1"
   exit 1
@@ -119,14 +99,14 @@ fi
 # Here is a place for fasplit.py to ensure not too
 # many sequences in each query.
 
-LAST_DIR="$JKL_WORK/ohana/last"
+LAST_DIR="$IMICROBE_DATA_DIR/ohana/last"
 
 if [[ ! -d "$LAST_DIR" ]]; then
   echo "LAST_DIR \"$LAST_DIR\" does not exist."
   exit 1
 fi
 
-LAST_DIR="$JKL_WORK/ohana/last"
+LAST_DIR="$IMICROBE_DATA_DIR/ohana/last"
 LAST_ARGS="-v -f BlastTab+ -P $NUM_THREADS"
 LAST_PARAM="$$.last.param"
 
@@ -191,13 +171,14 @@ echo "  SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
 
 export LAUNCHER_DIR=$TACC_LAUNCHER_DIR
 export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
-export LAUNCHER_WORKDIR=$BIN
+#export LAUNCHER_WORKDIR=$BIN
 export LAUNCHER_RMI=SLURM
 export LAUNCHER_JOB_FILE=$LAST_PARAM
-export LAUNCHER_NJOBS=$(lc $LAST_PARAM)
-export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
-export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS \/ $NUM_THREADS`
-export LAUNCHER_PPN=`expr $SLURM_NTASKS \/ $NUM_THREADS`
+#export LAUNCHER_NJOBS=$(lc $LAST_PARAM)
+#export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
+#export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS \/ $NUM_THREADS`
+# devote all cores to each task
+export LAUNCHER_PPN=1
 export LAUNCHER_SCHED=dynamic
 
 echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
@@ -223,24 +204,25 @@ find $LAST_OUT_DIR -size +0c -name \*-proteins.tab >> $GENE_PROTEIN_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Annotating $FILE"
-  echo "singularity exec muscope-last.img python3 annotate.py -l \"$FILE\" -a \"${IMICROBE_WORK}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
+  echo "singularity exec muscope-last.img python3 /app/scripts/annotate.py -l \"$FILE\" -a \"${IMICROBE_DATA_DIR}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
 done < $GENE_PROTEIN_HITS
 
 # Probably should run the above annotation with launcher, but I was
 # having problems with this.
 echo "Starting launcher for annotation"
 # one thread per task here
-export LAUNCHER_NJOBS=$(lc $ANNOT_PARAM)
+#export LAUNCHER_NJOBS=$(lc $ANNOT_PARAM)
 export LAUNCHER_JOB_FILE=$ANNOT_PARAM
 
-export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
-export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
-export LAUNCHER_PPN=`expr $SLURM_NTASKS`
+#export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
+#export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
+# one core per task
+export LAUNCHER_PPN=48
 export LAUNCHER_SCHED=dynamic
 
-echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
-echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
-echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
+#echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
+#echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
+#echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
 echo "  LAUNCHER_PPN=$LAUNCHER_PPN"
 
 $LAUNCHER_DIR/paramrun
@@ -259,7 +241,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Extracting Ohana sequences of LAST hits for $FILE"
-  echo "singularity exec muscope-last.img python3 extractseqs.py \"$FILE\"  \"${IMICROBE_WORK}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
+  echo "singularity exec muscope-last.img python3 /app/scripts/extractseqs.py \"$FILE\"  \"${IMICROBE_DATA_DIR}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
 done < $LAST_HITS
 
 echo "Starting launcher for Ohana sequence extraction"
@@ -267,14 +249,15 @@ echo "Starting launcher for Ohana sequence extraction"
 export LAUNCHER_NJOBS=$(lc $EXTRACTSEQS_PARAM)
 export LAUNCHER_JOB_FILE=$EXTRACTSEQS_PARAM
 
-export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
-export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
-export LAUNCHER_PPN=`expr $SLURM_NTASKS`
+#export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
+#export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
+# one core per task
+export LAUNCHER_PPN=48
 export LAUNCHER_SCHED=dynamic
 
-echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
-echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
-echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
+#echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
+#echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
+#echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
 echo "  LAUNCHER_PPN=$LAUNCHER_PPN"
 
 $LAUNCHER_DIR/paramrun
@@ -292,7 +275,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Inserting header in LAST output $FILE"
-  echo "singularity exec muscope-last.img python3 inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
+  echo "singularity exec muscope-last.img python3 /app/scripts/inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
 done < $LAST_HITS
 
 echo "Starting launcher for LAST header insertion"
@@ -300,21 +283,17 @@ echo "Starting launcher for LAST header insertion"
 export LAUNCHER_NJOBS=$(lc $INSERTHDR_PARAMS)
 export LAUNCHER_JOB_FILE=$INSERTHDR_PARAMS
 
-export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
-export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
-export LAUNCHER_PPN=`expr $SLURM_NTASKS`
+#export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
+#export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
+# one core per task
+export LAUNCHER_PPN=48
 export LAUNCHER_SCHED=dynamic
 
-echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
-echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
-echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
+#echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
+#echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
+#echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
 echo "  LAUNCHER_PPN=$LAUNCHER_PPN"
 
 $LAUNCHER_DIR/paramrun
 echo "Ended launcher for LAST header insertion"
 rm "$INSERTHDR_PARAMS"
-
-#
-# Clean up the bin directory
-#
-rm -rf $BIN/bin
