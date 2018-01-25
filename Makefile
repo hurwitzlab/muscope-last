@@ -49,3 +49,6 @@ lytic-rsync-dry-run:
 
 lytic-rsync:
 	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc ssh -A -t lytic" ./ :project/$(PROJECT)/apps/$(APP)
+
+lytic-direct-rsync:
+	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t lytic" ./ :project/$(PROJECT)/apps/$(APP)
