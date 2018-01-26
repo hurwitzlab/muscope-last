@@ -13,6 +13,7 @@ OUT_DIR=$(pwd)  ##"$BIN"
 # SKX nodes have 48 cores
 # let two tasks run at once
 NUM_THREADS=24
+LAST_DIR="$IMICROBE_DATA_DIR/ohana/last"
 
 # is the singularity image here?
 ls -l
@@ -34,6 +35,7 @@ function HELP() {
   echo " -p PCT_ID ($PCT_ID)"
   echo " -o OUT_DIR ($OUT_DIR)"
   echo " -n NUM_THREADS ($NUM_THREADS)"
+  echo " -t use small database for testing"
   echo
   exit 0
 }
@@ -42,7 +44,7 @@ if [[ $# -eq 0 ]]; then
   HELP
 fi
 
-while getopts :o:n:p:q:h OPT; do
+while getopts :o:n:p:q:t:h OPT; do
   case $OPT in
     h)
       HELP
@@ -58,6 +60,9 @@ while getopts :o:n:p:q:h OPT; do
       ;;
     q)
       QUERY="$OPTARG"
+      ;;
+    t)
+      LAST_DIR="$IMICROBE_DATA_DIR/ohana/last/test_db"
       ;;
     :)
       echo "Error: Option -$OPTARG requires an argument."
@@ -98,8 +103,7 @@ fi
 
 # Here is a place for fasplit.py to ensure not too
 # many sequences in each query.
-
-LAST_DIR="$IMICROBE_DATA_DIR/ohana/last"
+# is it necessary to split the query since we have multithreading?
 
 if [[ ! -d "$LAST_DIR" ]]; then
   echo "LAST_DIR \"$LAST_DIR\" does not exist."

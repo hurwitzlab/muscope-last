@@ -60,7 +60,25 @@
             "argument": "-p",
             "showArgument": true
         }
+      },
+        {
+        "id": "USE_TEST_DB",
+        "value": {
+            "type": "bool",
+            "default": "",
+            "order": 1,
+            "required": false,
+            "validator": "",
+            "visible": false
+        },
+        "details": {
+            "description": "Use a one-sample LAST db for testing",
+            "label": "Use Test DB",
+            "argument": "-t",
+            "showArgument": true
+        }
       }
+
     ],
     "outputs": []
 }

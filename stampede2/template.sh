@@ -1,6 +1,8 @@
 #!/bin/bash
 
 echo "Started $(date)"
+echo "command line arguments: $@"
+
 ARGS="-o $(pwd)"
 
 if [[ ${#OUT_DIR} -gt 1 ]]; then
