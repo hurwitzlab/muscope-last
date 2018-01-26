@@ -3,17 +3,16 @@
 # Author: Ken Youens-Clark <kyclark@email.arizona.edu>
 # Author: Joshua Lynch <jklynch@email.arizona.edu>
 
+module load launcher
+module load tacc-singularity
+
 IMICROBE_DATA_DIR=/work/05066/imicrobe/iplantc.org/data
 
-##BIN=$( cd "$( dirname "$0" )" && pwd )
 QUERY=""
 OUT_DIR=$(pwd)  ##"$BIN"
 # SKX nodes have 48 cores
 # let two tasks run at once
 NUM_THREADS=24
-
-module load launcher
-module load tacc-singularity
 
 # is the singularity image here?
 ls -l
@@ -108,7 +107,7 @@ if [[ ! -d "$LAST_DIR" ]]; then
 fi
 
 LAST_DIR="$IMICROBE_DATA_DIR/ohana/last"
-LAST_ARGS="-v -f BlastTab+ -P $NUM_THREADS"
+LAST_ARGS="-v -f BlastTab+ -P$NUM_THREADS"
 LAST_PARAM="$$.last.param"
 
 cat /dev/null > $LAST_PARAM # make sure it's empty
@@ -175,16 +174,10 @@ export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
 #export LAUNCHER_WORKDIR=$BIN
 export LAUNCHER_RMI=SLURM
 export LAUNCHER_JOB_FILE=$LAST_PARAM
-#export LAUNCHER_NJOBS=$(lc $LAST_PARAM)
-#export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
-#export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS \/ $NUM_THREADS`
 # run two tasks at once
 export LAUNCHER_PPN=2
 export LAUNCHER_SCHED=dynamic
 
-#echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
-#echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
-#echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
 echo "  LAUNCHER_PPN=$LAUNCHER_PPN"
 
 $LAUNCHER_DIR/paramrun
@@ -208,22 +201,13 @@ while read FILE; do
   echo "singularity exec muscope-last.img python3 /app/scripts/annotate.py -l \"$FILE\" -a \"${IMICROBE_DATA_DIR}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
 done < $GENE_PROTEIN_HITS
 
-# Probably should run the above annotation with launcher, but I was
-# having problems with this.
 echo "Starting launcher for annotation"
-# one thread per task here
-#export LAUNCHER_NJOBS=$(lc $ANNOT_PARAM)
 export LAUNCHER_JOB_FILE=$ANNOT_PARAM
 
-#export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
-#export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
 # one core per task
 export LAUNCHER_PPN=48
 export LAUNCHER_SCHED=dynamic
 
-#echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
-#echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
-#echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
 echo "  LAUNCHER_PPN=$LAUNCHER_PPN"
 
 $LAUNCHER_DIR/paramrun
@@ -250,15 +234,9 @@ echo "Starting launcher for Ohana sequence extraction"
 export LAUNCHER_NJOBS=$(lc $EXTRACTSEQS_PARAM)
 export LAUNCHER_JOB_FILE=$EXTRACTSEQS_PARAM
 
-#export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
-#export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
 # one core per task
 export LAUNCHER_PPN=48
 export LAUNCHER_SCHED=dynamic
-
-#echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
-#echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
-#echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
 echo "  LAUNCHER_PPN=$LAUNCHER_PPN"
 
 $LAUNCHER_DIR/paramrun
@@ -284,15 +262,9 @@ echo "Starting launcher for LAST header insertion"
 export LAUNCHER_NJOBS=$(lc $INSERTHDR_PARAMS)
 export LAUNCHER_JOB_FILE=$INSERTHDR_PARAMS
 
-#export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
-#export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
 # one core per task
 export LAUNCHER_PPN=48
 export LAUNCHER_SCHED=dynamic
-
-#echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
-#echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
-#echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
 echo "  LAUNCHER_PPN=$LAUNCHER_PPN"
 
 $LAUNCHER_DIR/paramrun
