@@ -21,7 +21,11 @@ iget-container:
 	irm $(APP).img
 
 setup:
-	cd setup; sbatch build_contigs_last_db.sh; sbatch build_genes_last_db.sh; sbatch build_proteins_last_db.sh; sbatch build_sqlite_seq_dbs.sh
+	cd setup; sbatch build_contigs_last_db.sh
+	cd setup; sbatch build_genes_last_db.sh
+	cd setup; sbatch build_proteins_last_db.sh
+	cd setup; sbatch build_sqlite_seq_dbs.sh
+	cd setup; sbatch build_test_contigs_genes_proteins_last_db.sh
 
 test:
 	cd stampede2; sbatch test.sh
