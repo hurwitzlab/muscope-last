@@ -16,8 +16,7 @@ iput-container:
 	iput -fK stampede2/$(APP).img
 
 iget-container:
-	iget -fK $(APP).img
-	mv $(APP).img stampede2/
+	cd stampede2; iget -fK $(APP).img
 	irm $(APP).img
 
 setup:
