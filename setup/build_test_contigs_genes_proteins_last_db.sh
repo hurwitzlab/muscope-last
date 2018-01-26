@@ -17,6 +17,8 @@ OHANA_HOT_DIR=/work/05066/imicrobe/iplantc.org/data/ohana/HOT
 OHANA_HOT_SAMPLE=$OHANA_HOT_DIR/HOT224_1_0025m
 LAST_DB_DIR=/work/05066/imicrobe/iplantc.org/data/ohana/last/test_db
 
+mkdir -p $LAST_DB_DIR
+
 ls -l $LAST_DB_DIR
 rm -f $LAST_DB_DIR/HOT224_1_0025m_contigs*
 singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P0 -v $LAST_DB_DIR/HOT224_1_0025m_contigs $OHANA_HOT_SAMPLE/contigs.fa
