@@ -31,5 +31,5 @@ ls -l $LAST_DB_DIR
 
 ls -l $LAST_DB_DIR
 rm -f $LAST_DB_DIR/HOT224_1_0025m_proteins*
-singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P0 -v $LAST_DB_DIR/HOT_proteins $OHANA_HOT_SAMPLE/proteins.faa
+singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P0 -p -v $LAST_DB_DIR/HOT_proteins $OHANA_HOT_SAMPLE/proteins.faa
 ls -l $LAST_DB_DIR
