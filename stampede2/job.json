@@ -6,5 +6,6 @@
     "QUERY": "agave://data.iplantcollaborative.org/jklynch/data/muscope/last/test.fa"
   },
   "parameter": {
+    "__LAST_DB_DIR": "/work/05066/imicrobe/iplantc.org/data/ohana/last/test_db"
   }
 }

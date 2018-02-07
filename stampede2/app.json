@@ -39,7 +39,7 @@
         "details": {
             "description": "",
             "label": "Input file(s)",
-            "argument": "",
+            "argument": "-q ",
             "showArgument": true
         }
     }],
@@ -57,24 +57,24 @@
         "details": {
             "description": "Percent Identity",
             "label": "Percent Identity",
-            "argument": "-p",
+            "argument": "-p ",
             "showArgument": true
         }
       },
         {
-        "id": "USE_TEST_DB",
+        "id": "__LAST_DB_DIR",
         "value": {
-            "type": "bool",
-            "default": "",
+            "type": "string",
+            "default": "/work/05066/imicrobe/iplantc.org/data/ohana/last",
             "order": 1,
-            "required": false,
+            "required": true,
             "validator": "",
-            "visible": false
+            "visible": true
         },
         "details": {
-            "description": "Use a one-sample LAST db for testing",
-            "label": "Use Test DB",
-            "argument": "-t",
+            "description": "Specify an alternative LAST database",
+            "label": "Path to LAST database",
+            "argument": "-d ",
             "showArgument": true
         }
       }

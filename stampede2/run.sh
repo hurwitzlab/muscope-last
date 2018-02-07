@@ -3,6 +3,8 @@
 # Author: Ken Youens-Clark <kyclark@email.arizona.edu>
 # Author: Joshua Lynch <jklynch@email.arizona.edu>
 
+echo "command line arguments: $@"
+
 module load launcher
 module load tacc-singularity
 
@@ -11,9 +13,10 @@ IMICROBE_DATA_DIR=/work/05066/imicrobe/iplantc.org/data
 QUERY=""
 OUT_DIR=$(pwd)  ##"$BIN"
 # SKX nodes have 48 cores
-# let two tasks run at once
+# let two tasks run at once and give each task 24 cores
 NUM_THREADS=24
-LAST_DIR="$IMICROBE_DATA_DIR/ohana/last"
+# this is the default LAST database
+LAST_DB_DIR="$IMICROBE_DATA_DIR/ohana/last"
 
 # is the singularity image here?
 ls -l
@@ -25,7 +28,7 @@ function lc() {
 }
 
 function HELP() {
-  printf "Usage:\n  %s -q QUERY -o OUT_DIR\n\n" $(basename $0)
+  printf "Usage:\n  %s -q QUERY -o OUT_DIR -d LAST_DB_DIR\n\n" $(basename $0)
 
   echo "Required arguments:"
   echo " -q QUERY"
@@ -35,7 +38,7 @@ function HELP() {
   echo " -p PCT_ID ($PCT_ID)"
   echo " -o OUT_DIR ($OUT_DIR)"
   echo " -n NUM_THREADS ($NUM_THREADS)"
-  echo " -t use small database for testing"
+  echo " -d path to LAST database"
   echo
   exit 0
 }
@@ -44,7 +47,7 @@ if [[ $# -eq 0 ]]; then
   HELP
 fi
 
-while getopts :o:n:p:q:t:h OPT; do
+while getopts :o:n:p:q:d:h OPT; do
   case $OPT in
     h)
       HELP
@@ -61,8 +64,8 @@ while getopts :o:n:p:q:t:h OPT; do
     q)
       QUERY="$OPTARG"
       ;;
-    t)
-      LAST_DIR="$IMICROBE_DATA_DIR/ohana/last/test_db"
+    d)
+      LAST_DB_DIR="$OPTARG"
       ;;
     :)
       echo "Error: Option -$OPTARG requires an argument."
@@ -73,6 +76,8 @@ while getopts :o:n:p:q:t:h OPT; do
       exit 1
   esac
 done
+
+echo "LAST_DB_DIR: \"$LAST_DB_DIR\""
 
 if [[ $NUM_THREADS -lt 1 ]]; then
   echo "NUM_THREADS \"$NUM_THREADS\" cannot be less than 1"
@@ -105,12 +110,12 @@ fi
 # many sequences in each query.
 # is it necessary to split the query since we have multithreading?
 
-if [[ ! -d "$LAST_DIR" ]]; then
-  echo "LAST_DIR \"$LAST_DIR\" does not exist."
+if [[ ! -d "$LAST_DB_DIR" ]]; then
+  echo "LAST_DB_DIR \"$LAST_DB_DIR\" does not exist."
   exit 1
 fi
 
-LAST_DIR="$IMICROBE_DATA_DIR/ohana/last"
+#LAST_DB_DIR="$IMICROBE_DATA_DIR/ohana/last"
 LAST_ARGS="-v -f BlastTab+ -P$NUM_THREADS"
 LAST_PARAM="$$.last.param"
 
@@ -147,8 +152,8 @@ while read INPUT_FILE; do
   fi
 
   if [[ ${#LAST_TO_DNA} -gt 0 ]]; then
-    echo "$LAST_TO_DNA $LAST_ARGS $LAST_DIR/HOT_contigs $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-contigs.tab" >> $LAST_PARAM
-    echo "$LAST_TO_DNA $LAST_ARGS $LAST_DIR/HOT_genes   $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-genes.tab" >> $LAST_PARAM
+    echo "$LAST_TO_DNA $LAST_ARGS $LAST_DB_DIR/HOT_contigs $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-contigs.tab" >> $LAST_PARAM
+    echo "$LAST_TO_DNA $LAST_ARGS $LAST_DB_DIR/HOT_genes   $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-genes.tab" >> $LAST_PARAM
   fi
 
   LAST_TO_PROT=""
@@ -161,7 +166,7 @@ while read INPUT_FILE; do
   fi
 
   if [[ ${#LAST_TO_PROT} -gt 0 ]]; then
-    echo "$LAST_TO_PROT $LAST_ARGS $LAST_DIR/HOT_proteins $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-proteins.tab" >> $LAST_PARAM
+    echo "$LAST_TO_PROT $LAST_ARGS $LAST_DB_DIR/HOT_proteins $INPUT_FILE > $LAST_OUT_DIR/$BASENAME-proteins.tab" >> $LAST_PARAM
   fi
 done < "$INPUT_FILES"
 rm "$INPUT_FILES"

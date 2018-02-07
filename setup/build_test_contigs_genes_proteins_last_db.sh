@@ -21,15 +21,15 @@ mkdir -p $LAST_DB_DIR
 
 ls -l $LAST_DB_DIR
 rm -f $LAST_DB_DIR/HOT224_1_0025m_contigs*
-singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P0 -v $LAST_DB_DIR/HOT224_1_0025m_contigs $OHANA_HOT_SAMPLE/contigs.fa
+singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P0 -v $LAST_DB_DIR/HOT_contigs $OHANA_HOT_SAMPLE/contigs.fa
 ls -l $LAST_DB_DIR
 
 ls -l $LAST_DB_DIR
 rm -f $LAST_DB_DIR/HOT224_1_0025m_genes*
-singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P0 -v $LAST_DB_DIR/HOT224_1_0025m_genes $OHANA_HOT_SAMPLE/genes.fa
+singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P0 -v $LAST_DB_DIR/HOT_genes $OHANA_HOT_SAMPLE/genes.fna
 ls -l $LAST_DB_DIR
 
 ls -l $LAST_DB_DIR
 rm -f $LAST_DB_DIR/HOT224_1_0025m_proteins*
-singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P0 -v $LAST_DB_DIR/HOT224_1_0025m_proteins $OHANA_HOT_SAMPLE/proteins.fa
+singularity exec ../stampede2/muscope-last.img lastdb -cR01 -P0 -v $LAST_DB_DIR/HOT_proteins $OHANA_HOT_SAMPLE/proteins.faa
 ls -l $LAST_DB_DIR
