@@ -16,7 +16,7 @@ iput-container:
 	iput -fK singularity/$(APP).img
 
 iget-container:
-	cd singularity; iget -fK $(APP).img
+	cd singularity; iget -fK $(APP).img; chmod g+r $(APP).img
 	irm $(APP).img
 
 setup:
