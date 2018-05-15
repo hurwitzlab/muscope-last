@@ -38,6 +38,11 @@ From: ubuntu:latest
     mkdir /scratch
     mkdir /work
 
+    # create mount points for AZ HPC directories
+    mkdir /rsgrps
+    mkdir /extra
+    mkdir /xdisk
+
 %test
     . /environment
     echo "PATH=${PATH}"
