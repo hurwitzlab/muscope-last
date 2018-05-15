@@ -1,6 +1,6 @@
 PROJECT = muscope
 APP = muscope-last
-VERSION = 0.0.3
+VERSION = 0.0.4
 EMAIL = $(CYVERSEUSERNAME)@email.arizona.edu
 
 clean:
