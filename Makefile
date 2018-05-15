@@ -8,16 +8,16 @@ clean:
 
 container:
 	rm -f stampede2/$(APP).img
-	sudo singularity create --size 1000 singularity/$(APP).img
-	sudo singularity bootstrap singularity/$(APP).img singularity/$(APP).def
-	sudo chown --reference=singularity/$(APP).def singularity/$(APP).img
+	sudo singularity create --size 1000 singularity/$(APP)-$(VERSION).img
+	sudo singularity bootstrap singularity/$(APP)-$(VERSION).img singularity/$(APP).def
+	sudo chown --reference=singularity/$(APP).def singularity/$(APP)-$(VERSION).img
 
 iput-container:
-	iput -fK singularity/$(APP).img
+	iput -fK singularity/$(APP)-$(VERSION).img
 
 iget-container:
-	cd singularity; iget -fK $(APP).img; chmod g+r $(APP).img
-	irm $(APP).img
+	cd /work/05066/imicrobe/singularity/; iget -fK $(APP)-$(VERSION).img; chmod ag+r $(APP)-$(VERSION).img
+	irm $(APP)-$(VERSION).img
 
 setup:
 	cd setup; sbatch build_contigs_last_db.sh
