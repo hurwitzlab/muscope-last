@@ -14,7 +14,7 @@ module load launcher/3.2
 
 IMICROBE_DATA_DIR=/work/05066/imicrobe/iplantc.org/data
 
-LAST_IMG=/work/05066/imicrobe/stampede2/jklynch/project/muscope/apps/muscope-last/singularity/muscope-last.img
+LAST_IMG=/work/05066/imicrobe/singularity/muscope-last-0.0.4.img
 
 QUERY=""
 OUT_DIR=$(pwd)  ##"$BIN"
