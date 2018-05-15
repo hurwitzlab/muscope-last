@@ -8,15 +8,15 @@ clean:
 
 container:
 	rm -f stampede2/$(APP).img
-	sudo singularity create --size 1000 stampede2/$(APP).img
-	sudo singularity bootstrap stampede2/$(APP).img singularity/$(APP).def
-	sudo chown --reference=singularity/$(APP).def stampede2/$(APP).img
+	sudo singularity create --size 1000 singularity/$(APP).img
+	sudo singularity bootstrap singularity/$(APP).img singularity/$(APP).def
+	sudo chown --reference=singularity/$(APP).def singularity/$(APP).img
 
 iput-container:
-	iput -fK stampede2/$(APP).img
+	iput -fK singularity/$(APP).img
 
 iget-container:
-	cd stampede2; iget -fK $(APP).img
+	cd singularity; iget -fK $(APP).img
 	irm $(APP).img
 
 setup:
