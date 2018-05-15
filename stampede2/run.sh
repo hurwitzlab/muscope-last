@@ -5,10 +5,16 @@
 
 echo "command line arguments: $@"
 
-module load launcher
 module load tacc-singularity
 
+# the next two lines load 'testing' version
+# of the TACC launcher
+module use /scratch/01255/siliu/modulefiles
+module load launcher/3.2
+
 IMICROBE_DATA_DIR=/work/05066/imicrobe/iplantc.org/data
+
+LAST_IMG=/work/05066/imicrobe/stampede2/jklynch/project/muscope/apps/muscope-last/singularity/muscope-last.img
 
 QUERY=""
 OUT_DIR=$(pwd)  ##"$BIN"
@@ -144,7 +150,7 @@ while read INPUT_FILE; do
 
   LAST_TO_DNA=""
   if [[ $TYPE == 'dna' ]]; then
-    LAST_TO_DNA='singularity exec muscope-last.img lastal'
+    LAST_TO_DNA="singularity exec ${LAST_IMG} lastal"
   #elif [[ $TYPE == 'prot' ]]; then
   #  LAST_TO_DNA='lastal'
   else
@@ -158,9 +164,9 @@ while read INPUT_FILE; do
 
   LAST_TO_PROT=""
   if [[ $TYPE == 'dna' ]]; then
-    LAST_TO_PROT='singularity exec muscope-last.img lastal -F15'
+    LAST_TO_PROT="singularity exec ${LAST_IMG} lastal -F15"
   elif [[ $TYPE == 'prot' ]]; then
-    LAST_TO_PROT='singularity exec muscope-last.img lastal'
+    LAST_TO_PROT="singularity exec ${LAST_IMG} lastal"
   else
     echo "Cannot LAST $BASENAME to PROT (not DNA or prot)"
   fi
@@ -178,21 +184,21 @@ echo "  SLURM_NTASKS=$SLURM_NTASKS"
 echo "  SLURM_JOB_CPUS_PER_NODE=$SLURM_JOB_CPUS_PER_NODE"
 echo "  SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
 
-export LAUNCHER_DIR=$TACC_LAUNCHER_DIR
+export LAUNCHER_DIR=${TACC_LAUNCHER_DIR}
 export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
 #export LAUNCHER_WORKDIR=$BIN
 export LAUNCHER_RMI=SLURM
-export LAUNCHER_JOB_FILE=$LAST_PARAM
+export LAUNCHER_JOB_FILE=${LAST_PARAM}
 # run two tasks at once
 export LAUNCHER_PPN=2
 export LAUNCHER_SCHED=dynamic
 
-echo "  LAUNCHER_PPN=$LAUNCHER_PPN"
+echo "  LAUNCHER_PPN=${LAUNCHER_PPN}"
 
-$LAUNCHER_DIR/paramrun
+${LAUNCHER_DIR}/paramrun
 echo "Ended launcher for LAST"
 
-rm $LAST_PARAM
+rm ${LAST_PARAM}
 
 #
 # Now we need to add Eggnog (and eventually Pfam, KEGG, etc.)
@@ -207,7 +213,7 @@ find $LAST_OUT_DIR -size +0c -name \*-proteins.tab >> $GENE_PROTEIN_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Annotating $FILE"
-  echo "singularity exec muscope-last.img python3 /app/scripts/annotate.py -l \"$FILE\" -a \"${IMICROBE_DATA_DIR}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
+  echo "singularity exec ${LAST_IMG} python3 /app/scripts/annotate.py -l \"$FILE\" -a \"${IMICROBE_DATA_DIR}/ohana/sqlite\" -o \"${OUT_DIR}/annotations\"" >> $ANNOT_PARAM
 done < $GENE_PROTEIN_HITS
 
 echo "Starting launcher for annotation"
@@ -235,7 +241,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Extracting Ohana sequences of LAST hits for $FILE"
-  echo "singularity exec muscope-last.img python3 /app/scripts/extractseqs.py \"$FILE\"  \"${IMICROBE_DATA_DIR}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
+  echo "singularity exec ${LAST_IMG} python3 /app/scripts/extractseqs.py \"$FILE\"  \"${IMICROBE_DATA_DIR}/ohana/HOT\" \"${OUT_DIR}/ohana_hits\"" >> $EXTRACTSEQS_PARAM
 done < $LAST_HITS
 
 echo "Starting launcher for Ohana sequence extraction"
@@ -263,7 +269,7 @@ find $LAST_OUT_DIR -size +0c -name \*.tab > $LAST_HITS
 while read FILE; do
   BASENAME=$(basename $FILE '.tab')
   echo "Inserting header in LAST output $FILE"
-  echo "singularity exec muscope-last.img python3 /app/scripts/inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
+  echo "singularity exec ${LAST_IMG} python3 /app/scripts/inserthdr.py \"$FILE\"" >> $INSERTHDR_PARAMS
 done < $LAST_HITS
 
 echo "Starting launcher for LAST header insertion"
